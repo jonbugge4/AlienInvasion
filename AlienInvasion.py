@@ -1,12 +1,13 @@
 ## install pip module with: python3 -m pip install --user pygame
 import sys
-
+from time import sleep
 import pygame
 
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from game_stats import GameStats
 
 class AlienInvasion:
     '''Overall class to manage game assets and behavior'''
@@ -26,6 +27,9 @@ class AlienInvasion:
         #This appeared on page 231 (line below)
         pygame.display.set_caption("Alien Invasion")
 
+
+        #Create an instance to store game statistics
+        self.stats = GameStats(self)
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
@@ -89,11 +93,30 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
-            print(len(self.bullets))
+
+            self.__check_bullet_alien_collisions()
+
+    def __check_bullet_alien_collision(self):
+        '''Respond to bullet-alien collisions'''
+        #remove any bullets that have collided with aliens
+        collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True)
+
+    
+        if not self.aliens:
+            #Destroy existing bullets and create new fleet
+            self.bullets.empty()
+            self.create_fleet()
 
     def __update_aliens(self):
-        '''Update the position of the aliens in the fleet'''
+        '''Check if the fleet is at an edge,
+        then update the postion of all aliens in the fleet'''
+        self.__check_fleet_edges()
         self.aliens.update()
+
+        #Look for alien-ship collsions
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            print('Ship Hit!!!')
         
     def __update_screen(self):
             '''Update images on the screen, and flip to the new screen'''
@@ -146,6 +169,18 @@ class AlienInvasion:
         for alien in self.aliens.sprites():
             alien.rect.y += self.settings.fleet_drop_speed
         self.settings.fleet_direction *= -1
+
+    def __ship_hit(self):
+        '''Respond to the ship being hit by an alien'''
+
+        #Decrememnt ships left
+        self.stats.ships_left -= 1
+
+        #Get rid of any remaining aliens and bullets
+        self.aliens.empty()
+        self.bullets.empty()
+
+        #Create a new fleet
 
 
             # Make the most recently drawn screen available
