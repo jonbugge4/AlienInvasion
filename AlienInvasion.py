@@ -116,7 +116,7 @@ class AlienInvasion:
 
         #Look for alien-ship collsions
         if pygame.sprite.spritecollideany(self.ship, self.aliens):
-            print('Ship Hit!!!')
+            self.__ship_hit()
         
     def __update_screen(self):
             '''Update images on the screen, and flip to the new screen'''
@@ -180,8 +180,12 @@ class AlienInvasion:
         self.aliens.empty()
         self.bullets.empty()
 
-        #Create a new fleet
+        #Create a new fleet and center the ship
+        self.__create_fleet()
+        self.ship.center_ship()
 
+        #Pause.
+        sleep(0.5)
 
             # Make the most recently drawn screen available
     pygame.display.flip()
