@@ -50,7 +50,7 @@ class AlienInvasion:
         '''Start the main loop for the game'''
         while True:
             self.__check_events()
-            if self.starts.game_activate:
+            if self.stats.game_active:
 
                 self.ship.update()
                 self.__update_bullets()
@@ -81,6 +81,8 @@ class AlienInvasion:
             self.stats.reset_stats()
             self.stats.game_active = True
             self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_ships()
 
             #Get rid of any remaining aliens and bullets
             self.aliens.empty()
@@ -138,11 +140,16 @@ class AlienInvasion:
         if collisions:
             self.stats.score += self.settings.alien_points
             self.sb.prep_score()
+            self.sb.check_high_score()
         if not self.aliens:
             #Destroy existing bullets and create new fleet
             self.bullets.empty()
             self.create_fleet()
             self.settings.increase_speed()
+
+            #Increase level.
+            self.stats.level += 1
+            self.sb.prep_level()
 
     def __update_aliens(self):
         '''Check if the fleet is at an edge,
@@ -199,7 +206,7 @@ class AlienInvasion:
             alien = Alien(self)
             alien_width, alien_height = alien.rect.size
             alien.x = alien_width + 2 * alien_width * alien_number
-            alien.rect.x = alien.x.self.aliens.add(alien)
+            alien.rect.x = alien.x
             alien.rect.y = alien_height + 2 * alien.rect.height * row_number
             self.aliens.add(alien)
 
@@ -219,8 +226,9 @@ class AlienInvasion:
     def __ship_hit(self):
         '''Respond to the ship being hit by an alien'''
         if self.stats.ship_left > 0:
-            #Decrememnt ships left
+            #Decrememnt ships left, and update scoreboard
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
 
             #Get rid of any remaining aliens and bullets
             self.aliens.empty()
@@ -248,7 +256,7 @@ class AlienInvasion:
                 break
 
             # Make the most recently drawn screen available
-    pygame.display.flip()
+            pygame.display.flip()
 
 if __name__ == '__main__':
     #make a game instance, and run the game
