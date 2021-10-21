@@ -13,7 +13,6 @@ class Button:
         self.text_color = (255,255,255)
         self.font = pygame.font.SysFont(None, 48)
 
-
         #Build the button's rect object and center it
         self.rect = pygame.Rect(0,0, self.width, self.height)
         self.rect.center = self.screen_rect.center
@@ -31,3 +30,4 @@ class Button:
         #Draw blank button and then draw message
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
+
